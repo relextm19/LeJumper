@@ -1,4 +1,4 @@
-let canvas, gravity, f, ax, ay;
+let canvas, gravity, airRes, friction, ax, ay, onGround, aax;
 
 export const player = {
     x: 0,
@@ -17,10 +17,12 @@ const keys = {
     right: false
 };
 
-export function initPlayer(c, g, friction, accelerationx, accelerationy, callback) {
+export function initPlayer(c, g, f, ar ,accelerationx, accelerationy, airaccelearionx, callback) {
     canvas = c;
     gravity = g;
-    f = friction;
+    friction = f;
+    airRes = ar;
+    aax = airaccelearionx;
     ax = accelerationx;
     ay = accelerationy;
     player.x = canvas.width / 2;
@@ -37,7 +39,9 @@ export function updatePlayer() {
     // Apply gravity to the vertical
     player.vy += gravity;
     // Apply friction to the horizontal
-    player.vx *= f;
+    if(onGround) player.vx *= friction;
+    else player.vx *= airRes;
+    
 
     // Update player velocity based on key states
     playerMovement();
@@ -45,41 +49,40 @@ export function updatePlayer() {
     // Update player position
     player.y += player.vy;
     player.x += player.vx;
-
+    onGround = false;
     checkPlayerBounds();
 }
 
-function checkPlayerBounds(ox = 0, oy = 0) {
-    if (player.y + oy + player.height > canvas.height) {
+function checkPlayerBounds() {
+    if (player.y + player.height > canvas.height) {
         player.y = canvas.height - player.height; 
         player.vy = 0;
+        if(!onGround) onGround = true;
     } 
-    if (player.y - oy < 0) {
+    if (player.y < 0) {
         player.y = 0; 
         player.vy = -player.vy;
     }
-    if (player.x - ox < 0) {
+    if (player.x < 0) {
         player.x = 0;
         player.vx = -player.vx;
     }
-    if (player.x - ox > canvas.width - player.width) {
+    if (player.x > canvas.width - player.width) {
         player.x = canvas.width - player.width;
         player.vx = -player.vx;
     }
 }
 
-function onGround() {
-    return player.y + player.height >= canvas.height;
-}
-
 export function playerMovement() {
     if (keys.left) {
-        player.vx -= ax;
+        if(onGround) player.vx -= ax;
+        else player.vx -= aax;
     }
     if (keys.right) {
-        player.vx += ax;
+        if(onGround) player.vx += ax;
+        else player.vx += aax;
     }
-    if (keys.up && onGround()) {
+    if (keys.up && onGround) {
         player.vy -= ay;
     }
     if (keys.down) {
