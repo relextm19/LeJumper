@@ -9,7 +9,7 @@ canvas.height = window.innerHeight;
 
 // Game variables
 export const gravity = 0.5; 
-export const ax = 1; // x acceleration
+export const ax = 0.5; // x acceleration
 export const ay = 20; // y acceleration
 export const f = 0.9; // friction
 export const ar = 0.98; // air resistance
@@ -21,10 +21,13 @@ MapModule.initMap(canvas);
 MapModule.splitMap();
 MapModule.loadMap(1);
 
+let lastTime = Date.now();
 function gameLoop() {
-    PlayerModule.updatePlayer();
+    const currentTime = Date.now();
+    let deltaTime = currentTime - lastTime;
+    PlayerModule.updatePlayer(deltaTime);
     draw();
-    requestAnimationFrame(gameLoop); // Call gameLoop recursively for animation
+    lastTime = currentTime;
 }
 
 function draw() {
@@ -35,4 +38,4 @@ function draw() {
     ctx.drawImage(PlayerModule.player.image, PlayerModule.player.x, PlayerModule.player.y, PlayerModule.player.width, PlayerModule.player.height);
 }
 
-
+const gameLoopInterval = setInterval(gameLoop, 1000 / 144);

@@ -1,9 +1,8 @@
-let canvas, ctx, mapCanvas, mapCtx;
+let canvas, mapCanvas, mapCtx;
 const mapTiles = [];
 const width = 50, height = 50;
 export function initMap(canv){
     canvas = canv;
-    ctx = canvas.getContext("2d");
     // Create a canvas for the map
     mapCanvas = document.createElement("canvas");
     mapCanvas.width = canvas.width;
@@ -41,10 +40,6 @@ function drawRect(x, y, width, height, color, context) {
     context.stroke();
 }
 
-export function getMapCanvas() {
-    return mapCanvas;
-}
-
 export function loadMap(nr){
     console.log("loading map")
     fetch(`assets/maps/map_${nr}.json`)
@@ -56,6 +51,7 @@ export function loadMap(nr){
             }
         }).then(updateTiles)
 }
+
 function updateTiles(data){
     if(!data) return;
     data.platforms.forEach((platform, rowIndex) => {
@@ -76,18 +72,30 @@ function updateTiles(data){
             console.log("Invalid Y coordinates:", startY, endY);
             return;
         }
-    
+        
         // Update the type of map tiles between the coordinates
         for (let x = startX; x <= endX; x++) {
             for (let y = startY; y <= endY; y++) {
                 // Check if the tile exists at the given coordinates
                 if (mapTiles[y] && mapTiles[y][x]) {
-                    mapTiles[y][x].type = 1; // Set the type to 1 (assuming type 1 is for platforms)
-                    drawRect(x * width, y * height, width, height, "FFFF00", mapCtx)
+                    mapTiles[y][x].type = 1; 
+                    drawRect(x * width, y * height, width, height, "FFFF00", mapCtx);
                 } else {
                     console.log("Invalid tile at:", x, y);
                 }
             }
         }
     });
+}
+
+export function getMapCanvas() {
+    return mapCanvas;
+}
+
+export function getMapTiles() {
+    return mapTiles;
+}
+
+export function getTileDimension(){
+    return [width, height];
 }
