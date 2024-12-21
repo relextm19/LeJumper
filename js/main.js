@@ -2,8 +2,8 @@ import * as PlayerModule from "./player.js";
 import * as MapModule from "./map.js";
 
 // Canvas setup
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+export const canvas = document.getElementById("gameCanvas");
+export const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
@@ -13,11 +13,11 @@ export const f = 0.9; // friction
 export const ar = 0.98; // air resistance
 
 //initalize map
-MapModule.initMap(canvas);
+MapModule.initMap();
 MapModule.splitMap();
 MapModule.loadMap(1);
 
-PlayerModule.initPlayer(canvas, gravity, f, ar, gameLoop);
+PlayerModule.initPlayer(gravity, f, ar, gameLoop);
 
 let lastTime = Date.now();
 function gameLoop() {

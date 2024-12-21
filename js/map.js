@@ -1,7 +1,8 @@
-let canvas, mapCanvas, mapCtx, tileWidth, tileHeight;
+import { canvas, ctx } from "./main.js";
+
+let mapCanvas, mapCtx, tileWidth, tileHeight, columnCount, rowCount;
 const mapTiles = [];
-export function initMap(canv){
-    canvas = canv;
+export function initMap(){
     // Create a canvas for the map
     mapCanvas = document.createElement("canvas");
     mapCanvas.width = canvas.width;
@@ -13,24 +14,25 @@ export function initMap(canv){
     }
     tileHeight = canvas.height / 20;
     tileWidth = canvas.width / 20;
+    rowCount = Math.floor(mapCanvas.height / tileHeight); 
+    columnCount = Math.floor(mapCanvas.width / tileWidth);
 }
 
 export function splitMap(){
-    const rows = Math.floor(mapCanvas.height / tileHeight);
-    const cols = Math.floor(mapCanvas.width / tileWidth);
-    for (let y = 0; y < rows; y += 1) {
+    for (let y = 0; y < rowCount; y += 1) {
         const row = [];
-        for (let x = 0; x < cols; x += 1) {
+        for (let x = 0; x < columnCount; x += 1) {
             const tile = {
                 type: 0
             }
+            drawRect(x * tileWidth, y * tileHeight, tileWidth - 1, tileHeight - 1, "000000", mapCtx);
             row.push(tile);
         }
         mapTiles.push(row);
     }
 }
 
-function drawRect(x, y, width, height, color, context) {
+export function drawRect(x, y, width, height, color, context) {
     if(!context){
         console.log("context not provided");
         return;
@@ -53,7 +55,7 @@ export function loadMap(nr){
         }).then(updateTiles)
 }
 
-function updateTiles(data){
+    function updateTiles(data){
     if(!data) return;
     data.platforms.forEach((platform, rowIndex) => {
         // Assuming each platform in data.platforms is an array [startX, endX, startY, endY]
@@ -99,4 +101,12 @@ export function getMapTiles() {
 
 export function getTileDimension(){
     return [tileWidth, tileHeight];
+}
+
+export function getContext(){
+    return mapCtx;
+}
+
+export function getMapDimension(){
+    return [rowCount, columnCount];
 }
