@@ -1,6 +1,5 @@
-let canvas, mapCanvas, mapCtx;
+let canvas, mapCanvas, mapCtx, tileWidth, tileHeight;
 const mapTiles = [];
-const width = 50, height = 50;
 export function initMap(canv){
     canvas = canv;
     // Create a canvas for the map
@@ -12,11 +11,13 @@ export function initMap(canv){
     if(mapCtx){
         console.log("context initalized")
     }
+    tileHeight = canvas.height / 20;
+    tileWidth = canvas.width / 20;
 }
 
 export function splitMap(){
-    const rows = Math.floor(mapCanvas.height / height);
-    const cols = Math.floor(mapCanvas.width / width);
+    const rows = Math.floor(mapCanvas.height / tileHeight);
+    const cols = Math.floor(mapCanvas.width / tileWidth);
     for (let y = 0; y < rows; y += 1) {
         const row = [];
         for (let x = 0; x < cols; x += 1) {
@@ -79,7 +80,7 @@ function updateTiles(data){
                 // Check if the tile exists at the given coordinates
                 if (mapTiles[y] && mapTiles[y][x]) {
                     mapTiles[y][x].type = 1; 
-                    drawRect(x * width, y * height, width, height, "FFFF00", mapCtx);
+                    drawRect(x * tileWidth, y * tileHeight, tileWidth, tileHeight, "FFFF00", mapCtx);
                 } else {
                     console.log("Invalid tile at:", x, y);
                 }
@@ -97,5 +98,5 @@ export function getMapTiles() {
 }
 
 export function getTileDimension(){
-    return [width, height];
+    return [tileWidth, tileHeight];
 }

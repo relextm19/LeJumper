@@ -1,8 +1,6 @@
 {
-    "_comment_": "startX, endX, startY, endY",
+    "_comment_": "startX, endX, startY, endY. Map dimmension is 20x20",
     "platforms": [ 
-        [0, 4, 15, 15],
-        [6, 10, 12, 12],
-        [12, 16, 9, 9]
+        [15, 15, 19, 19]
     ]
 }

@@ -9,17 +9,15 @@ canvas.height = window.innerHeight;
 
 // Game variables
 export const gravity = 0.5; 
-export const ax = 0.5; // x acceleration
-export const ay = 20; // y acceleration
 export const f = 0.9; // friction
 export const ar = 0.98; // air resistance
-export const aax = 0.3; // acceleration while in air
-PlayerModule.initPlayer(canvas, gravity, f, ar, ax, ay, aax, gameLoop);
 
 //initalize map
 MapModule.initMap(canvas);
 MapModule.splitMap();
 MapModule.loadMap(1);
+
+PlayerModule.initPlayer(canvas, gravity, f, ar, gameLoop);
 
 let lastTime = Date.now();
 function gameLoop() {
