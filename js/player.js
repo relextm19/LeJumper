@@ -70,7 +70,7 @@ function checkPlayerBounds() {
     } 
     if (player.y < 0) {
         player.y = 0; 
-        player.vy = -player.vy;
+        player.vy = 0;
     }
     if (player.x < 0) {
         player.x = 0;
@@ -91,33 +91,45 @@ function checkMapCollision() {
         });
     });
 }
-function type1Collision(rowIndex, colIndex){
+function type1Collision(rowIndex, colIndex) {
     const tileX = colIndex * tileWidth;
     const tileY = rowIndex * tileHeight;
-    //check collison with bottom and top of a tile
+
+    // Check collision with bottom and top of a tile
     if (player.x + player.width > tileX && player.x < tileX + tileWidth) {
         // Check if the player is hitting the top of the block
-        if (player.y + player.height > tileY && player.y < tileY) {
-            //player bottom lower than tile height and player top higher than tile top
+        if (
+            player.y + player.height > tileY &&
+            player.y + player.height < tileY + player.vy + 1 && //create a buffer to account for errors
+            player.vy > 0 // Ensure player is falling
+        ) {
             onGround = true;
             player.vy = 0;
             player.y = tileY - player.height; // Snap player to the top of the block
         }
         // Check if the player is hitting the bottom of the block
-        else if (player.y < tileY + tileHeight && player.y + player.height > tileY + tileHeight && player.vy < 0) {
-            // Player top higher than tile bottom, player bottom  below tile bottom, player moving upward
+        else if (
+            player.y < tileY + tileHeight &&
+            player.y + player.height > tileY + tileHeight &&
+            player.vy < 0 // Ensure player is moving upward
+        ) {
             player.y = tileY + tileHeight; // Snap player below the block
             player.vy = 0; // Stop upward movement
         }
     }
-    //check collision with left and right side of a tile
-    if (player.y + player.height > tileY && player.y < tileY + tileHeight && !(onGround && player.vy > 0)) { //ignore the case when the player is falling of the tiles side to avoid unnatural snapping
-        //left side collison
+
+    // Check collision with left and right side of a tile
+    if (
+        player.y + player.height > tileY &&
+        player.y < tileY + tileHeight &&
+        !(onGround && player.vy > 0) // Ignore when player is falling off the tile's side
+    ) {
+        // Left side collision
         if (player.x + player.width > tileX && player.x < tileX) {
             player.vx = 0;
             player.x = tileX - player.width;
         }
-        // right side collsion
+        // Right side collision
         else if (player.x < tileX + tileWidth && player.x + player.width > tileX + tileWidth) {
             player.vx = 0;
             player.x = tileX + tileWidth;

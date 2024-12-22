@@ -12,7 +12,6 @@ let firstClickCoords = null;
 
 let platformsData = {
     platforms: [
-        [15, 15, 19, 19]
     ]
 };
 
@@ -32,7 +31,7 @@ canvas.addEventListener('click', (e) => {
         const endX = Math.max(firstClickCoords.x, targetX);
         const startY = Math.min(firstClickCoords.y, targetY);
         const endY = Math.max(firstClickCoords.y, targetY);
-
+        console.log(`start x: ${startX}, end x: ${endX}, start y: ${startY}, end y: ${endY}`);
         // Draw the platform
         for (let x = startX; x <= endX; x++) {
             for (let y = startY; y <= endY; y++) {
@@ -41,7 +40,7 @@ canvas.addEventListener('click', (e) => {
         }
 
         // Add the new platform to the platforms data
-        platformsData.platforms.push([startX, startY, endX, endY]);
+        platformsData.platforms.push([startX, endX, startY, endY]);
 
         // Reset click count and coordinates
         clickCount = 0;
@@ -51,24 +50,15 @@ canvas.addEventListener('click', (e) => {
 
 document.addEventListener("keydown", (e) =>{
     if(e.key == "Enter"){
-        savePlatformsToFile(platformsData);
+        logPlatformsData();
     }
 })
 
-function savePlatformsToFile(data) {
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-
-    // Create a temporary anchor element to trigger download
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'map_1.json'; // The name of the file to be saved
-    document.body.appendChild(a);
-    a.click();
-
-    // Clean up
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    console.log("File saved successfully!");
+function logPlatformsData() {
+    const platformsString = platformsData.platforms.map(platform => `  [${platform.join(", ")}]`).join(",\n");
+    console.log(`{
+    "platforms": [
+    ${platformsString}
+    ]
+    }`);
 }
-
