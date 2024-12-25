@@ -1,5 +1,5 @@
 import { canvas, ctx } from "./main.js";
-
+import { getCameraPosition } from "./camera.js";
 let mapCanvas, mapCtx, tileWidth, tileHeight, columnCount, rowCount;
 const mapTiles = [];
 export function initMap(){
@@ -22,10 +22,7 @@ export function splitMap(){
     for (let y = 0; y < rowCount; y += 1) {
         const row = [];
         for (let x = 0; x < columnCount; x += 1) {
-            const tile = {
-                type: 0
-            }
-            drawRect(x * tileWidth, y * tileHeight, tileWidth - 1, tileHeight - 1, "000000", mapCtx);
+            const tile = {type: 0};
             row.push(tile);
         }
         mapTiles.push(row);
@@ -54,8 +51,7 @@ export function loadMap(nr){
             }
         }).then(updateTiles)
 }
-
-    function updateTiles(data){
+function updateTiles(data){
     if(!data) return;
     data.platforms.forEach((platform, rowIndex) => {
         // Assuming each platform in data.platforms is an array [startX, endX, startY, endY]
@@ -82,13 +78,31 @@ export function loadMap(nr){
                 // Check if the tile exists at the given coordinates
                 if (mapTiles[y] && mapTiles[y][x]) {
                     mapTiles[y][x].type = 1; 
-                    drawRect(x * tileWidth, y * tileHeight, tileWidth, tileHeight, "FFFF00", mapCtx);
                 } else {
                     console.log("Invalid tile at:", x, y);
                 }
             }
         }
     });
+}
+export function drawMap(){
+    let color = "";
+    const [cameraX, cameraY] = getCameraPosition();
+    for (let y = 0; y < rowCount; y += 1) {
+        for (let x = 0; x < columnCount; x += 1) {
+            const tile = mapTiles[y][x];
+            switch(tile.type){
+                case 0:
+                    color = "000000";
+                    break;
+                case 1:
+                    color = "00FFFF";
+                    break;
+            }
+            drawRect(x * tileWidth - cameraX, y * tileHeight - cameraY, tileWidth, tileHeight, color, mapCtx);
+        }
+    }
+    return mapCanvas;
 }
 
 export function getMapCanvas() {

@@ -1,5 +1,6 @@
 import * as PlayerModule from "./player.js"; 
 import * as MapModule from "./map.js";
+import { initCamera } from "./camera.js";
 
 // Canvas setup
 export const canvas = document.getElementById("gameCanvas");
@@ -12,10 +13,13 @@ export const gravity = 0.5;
 export const f = 0.9; // friction
 export const ar = 0.98; // air resistance
 
+initCamera();
+
 //initalize map
 MapModule.initMap();
 MapModule.splitMap();
 MapModule.loadMap(1);
+let mapCanvas = MapModule.drawMap();
 
 PlayerModule.initPlayer(gravity, f, ar, gameLoop);
 
@@ -24,14 +28,16 @@ function gameLoop() {
     const currentTime = Date.now();
     let deltaTime = currentTime - lastTime;
     PlayerModule.updatePlayer(deltaTime);
-    draw();
     lastTime = currentTime;
+    draw();
 }
 
 function draw() {
     // Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(MapModule.getMapCanvas(), 0, 0)
+    //draw map
+    ctx.drawImage(mapCanvas, 0, 0)
+    mapCanvas = MapModule.drawMap();
     // Draw the player image
     ctx.drawImage(PlayerModule.player.image, PlayerModule.player.x, PlayerModule.player.y, PlayerModule.player.width, PlayerModule.player.height);
 }

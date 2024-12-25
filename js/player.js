@@ -1,10 +1,11 @@
 import * as MapModule from "./map.js";
 import { canvas } from "./main.js";
-
+import { updateCameraPosition, getCameraPosition } from "./camera.js";
 let gravity, airRes, friction, onGround, tileWidth, tileHeight;
 const ax = 0.5; // x acceleration
-const ay = 15; // y acceleration
+const ay = 17; // y acceleration
 const aax = 0.3; // acceleration while in air
+let spawnX, spawnY;
 
 export const player = {
     x: 0,
@@ -24,14 +25,15 @@ const keys = {
 };
 
 
-
 export function initPlayer(g, f, ar, callback) {
     gravity = g;
     friction = f;
     airRes = ar;
+    spawnX = 0;
+    spawnY = canvas.height;
     [tileWidth, tileHeight] = MapModule.getTileDimension();
-    player.x = canvas.width / 2;
-    player.y = 0;
+    player.x = spawnX; 
+    player.y = spawnY;
     player.width = tileHeight;
     player.height = tileHeight - 1; //if the player size gets higher than the tile the collision breaks
     player.vy = 0;
@@ -60,6 +62,9 @@ export function updatePlayer(deltaTime) {
     checkPlayerBounds();
     //check collision with map elements
     checkMapCollision();
+
+    updateCameraPosition(player.x, player.y);
+    console.log(`Player Position: (${player.x}, ${player.y})`);
 }
 
 function checkPlayerBounds() {
@@ -72,14 +77,14 @@ function checkPlayerBounds() {
         player.y = 0; 
         player.vy = 0;
     }
-    if (player.x < 0) {
-        player.x = 0;
-        player.vx = -player.vx;
-    }
-    if (player.x > canvas.width - player.width) {
-        player.x = canvas.width - player.width;
-        player.vx = -player.vx;
-    }
+    // if (player.x < 0) {
+    //     player.x = 0;
+    //     player.vx = -player.vx;
+    // }
+    // if (player.x > canvas.width - player.width) {
+    //     player.x = canvas.width - player.width;
+    //     player.vx = -player.vx;
+    // }
 }
 function checkMapCollision() {
     const mapTiles = MapModule.getMapTiles();
@@ -92,15 +97,15 @@ function checkMapCollision() {
     });
 }
 function type1Collision(rowIndex, colIndex) {
-    const tileX = colIndex * tileWidth;
-    const tileY = rowIndex * tileHeight;
-
+    const [cameraX, cameraY] = getCameraPosition();
+    const tileY = rowIndex * tileHeight - cameraY;
+    const tileX = colIndex * tileWidth - cameraX;
     // Check collision with bottom and top of a tile
     if (player.x + player.width > tileX && player.x < tileX + tileWidth) {
         // Check if the player is hitting the top of the block
         if (
             player.y + player.height > tileY &&
-            player.y + player.height < tileY + player.vy + 1 && //create a buffer to account for errors
+            player.y < tileY && //create a buffer to account for errors
             player.vy > 0 // Ensure player is falling
         ) {
             onGround = true;
@@ -188,6 +193,9 @@ function keysUp(e) {
     }
 }
 
+export function getSpawnCoords(){
+    return [spawnX, spawnY];
+}
 
 //event listener for player movement
 document.addEventListener("keydown", keysDown);
