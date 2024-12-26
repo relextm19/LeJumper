@@ -3,7 +3,7 @@ import { canvas } from "./main.js";
 import { updateCameraPosition, getCameraPosition } from "./camera.js";
 let gravity, airRes, friction, onGround, tileWidth, tileHeight;
 const ax = 0.5; // x acceleration
-const ay = 17; // y acceleration
+const ay = 12; // y acceleration
 const aax = 0.3; // acceleration while in air
 let spawnX, spawnY;
 
@@ -43,6 +43,7 @@ export function initPlayer(g, f, ar, callback) {
 }
 
 export function updatePlayer(deltaTime) {
+    console.log(`Player position ${player.x}, ${player.y} `);
     const equalizer = deltaTime * 0.1;
     // Apply gravity to the vertical
     player.vy += gravity * equalizer;
@@ -77,10 +78,10 @@ function checkPlayerBounds() {
         player.y = 0; 
         player.vy = 0;
     }
-    // if (player.x < 0) {
-    //     player.x = 0;
-    //     player.vx = -player.vx;
-    // }
+    if (player.x < 0) {
+        player.x = 0;
+        player.vx = -player.vx;
+    }
     // if (player.x > canvas.width - player.width) {
     //     player.x = canvas.width - player.width;
     //     player.vx = -player.vx;
@@ -98,8 +99,8 @@ function checkMapCollision() {
 }
 function type1Collision(rowIndex, colIndex) {
     const [cameraX, cameraY] = getCameraPosition();
-    const tileY = rowIndex * tileHeight - cameraY;
-    const tileX = colIndex * tileWidth - cameraX;
+    const tileY = rowIndex * tileHeight;
+    const tileX = colIndex * tileWidth;
     // Check collision with bottom and top of a tile
     if (player.x + player.width > tileX && player.x < tileX + tileWidth) {
         // Check if the player is hitting the top of the block

@@ -1,6 +1,6 @@
 import * as PlayerModule from "./player.js"; 
 import * as MapModule from "./map.js";
-import { initCamera } from "./camera.js";
+import { initCamera, getCameraPosition } from "./camera.js";
 
 // Canvas setup
 export const canvas = document.getElementById("gameCanvas");
@@ -33,13 +33,14 @@ function gameLoop() {
 }
 
 function draw() {
+    const [cameraX, cameraY] = getCameraPosition();
     // Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     //draw map
-    ctx.drawImage(mapCanvas, 0, 0)
+    ctx.drawImage(mapCanvas, 0 - cameraX, 0)
     mapCanvas = MapModule.drawMap();
     // Draw the player image
-    ctx.drawImage(PlayerModule.player.image, PlayerModule.player.x, PlayerModule.player.y, PlayerModule.player.width, PlayerModule.player.height);
+    ctx.drawImage(PlayerModule.player.image, PlayerModule.player.x - cameraX, PlayerModule.player.y, PlayerModule.player.width, PlayerModule.player.height);
 }
 
-const gameLoopInterval = setInterval(gameLoop, 1000 / 144);
+const gameLoopInterval = setInterval(gameLoop, 1000 / 60);
