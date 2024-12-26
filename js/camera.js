@@ -20,5 +20,4 @@ export function updateCameraPosition(x, y){
     else if(camera.x > canvas.width) camera.x = canvas.width;
     if(camera.y < 0) camera.y = 0;
     else if(camera.y > canvas.height) camera.y = canvas.height;
-    console.log(`Camera Position: (${camera.x}, ${camera.y})`);
 }

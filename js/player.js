@@ -1,7 +1,7 @@
 import * as MapModule from "./map.js";
-import { canvas } from "./main.js";
-import { updateCameraPosition, getCameraPosition } from "./camera.js";
-let gravity, airRes, friction, onGround, tileWidth, tileHeight;
+import { canvas, gravity, friction, airResistance } from "./main.js";
+import { updateCameraPosition } from "./camera.js";
+let onGround, tileWidth, tileHeight;
 const ax = 0.5; // x acceleration
 const ay = 12; // y acceleration
 const aax = 0.3; // acceleration while in air
@@ -25,10 +25,7 @@ const keys = {
 };
 
 
-export function initPlayer(g, f, ar, callback) {
-    gravity = g;
-    friction = f;
-    airRes = ar;
+export function initPlayer(callback) {
     spawnX = 0;
     spawnY = canvas.height;
     [tileWidth, tileHeight] = MapModule.getTileDimension();
@@ -43,13 +40,12 @@ export function initPlayer(g, f, ar, callback) {
 }
 
 export function updatePlayer(deltaTime) {
-    console.log(`Player position ${player.x}, ${player.y} `);
     const equalizer = deltaTime * 0.1;
     // Apply gravity to the vertical
     player.vy += gravity * equalizer;
     // Apply friction to the horizontal
     if(onGround) player.vx *= friction;
-    else player.vx *= airRes ;
+    else player.vx *= airResistance;
     
 
     // Update player velocity based on key states
@@ -65,7 +61,6 @@ export function updatePlayer(deltaTime) {
     checkMapCollision();
 
     updateCameraPosition(player.x, player.y);
-    console.log(`Player Position: (${player.x}, ${player.y})`);
 }
 
 function checkPlayerBounds() {
@@ -98,7 +93,6 @@ function checkMapCollision() {
     });
 }
 function type1Collision(rowIndex, colIndex) {
-    const [cameraX, cameraY] = getCameraPosition();
     const tileY = rowIndex * tileHeight;
     const tileX = colIndex * tileWidth;
     // Check collision with bottom and top of a tile

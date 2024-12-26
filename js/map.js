@@ -1,5 +1,4 @@
 import { canvas, ctx } from "./main.js";
-import { getCameraPosition } from "./camera.js";
 let mapCanvas, mapCtx, tileWidth, tileHeight, columnCount, rowCount;
 const mapTiles = [];
 export function initMap(){
@@ -87,7 +86,6 @@ function updateTiles(data){
 }
 export function drawMap(){
     let color = "";
-    const [cameraX, cameraY] = getCameraPosition();
     for (let y = 0; y < rowCount; y += 1) {
         for (let x = 0; x < columnCount; x += 1) {
             const tile = mapTiles[y][x];

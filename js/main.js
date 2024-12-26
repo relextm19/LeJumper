@@ -10,8 +10,8 @@ canvas.height = window.innerHeight;
 
 // Game variables
 export const gravity = 0.5; 
-export const f = 0.9; // friction
-export const ar = 0.98; // air resistance
+export const friction = 0.9; 
+export const airResistance = 0.98;
 
 initCamera();
 
@@ -21,7 +21,7 @@ MapModule.splitMap();
 MapModule.loadMap(1);
 let mapCanvas = MapModule.drawMap();
 
-PlayerModule.initPlayer(gravity, f, ar, gameLoop);
+PlayerModule.initPlayer(gameLoop);
 
 let lastTime = Date.now();
 function gameLoop() {
