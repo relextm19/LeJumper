@@ -1,11 +1,9 @@
-import { canvas, ctx } from "./main.js";
+import { canvas } from "./main.js";
 let mapCanvas, mapCtx, tileWidth, tileHeight, columnCount, rowCount;
 const mapTiles = [];
 export function initMap(){
     // Create a canvas for the map
     mapCanvas = document.createElement("canvas");
-    mapCanvas.width = canvas.width;
-    mapCanvas.height = canvas.height;
     document.body.appendChild(mapCanvas);
     mapCtx = mapCanvas.getContext("2d");
     if(mapCtx){
@@ -13,11 +11,16 @@ export function initMap(){
     }
     tileHeight = canvas.height / 20;
     tileWidth = canvas.width / 20;
-    rowCount = Math.floor(mapCanvas.height / tileHeight); 
-    columnCount = Math.floor(mapCanvas.width / tileWidth);
+    console.log("Map initalized");
 }
 
-export function splitMap(){
+function udpateMapCanvasDimension(width, height){
+    mapCanvas.width = width;
+    mapCanvas.height = height;
+}
+
+export function splitMap(endX, endY){
+    [rowCount, columnCount] = [endX, endY];
     for (let y = 0; y < rowCount; y += 1) {
         const row = [];
         for (let x = 0; x < columnCount; x += 1) {
@@ -41,7 +44,7 @@ export function drawRect(x, y, width, height, color, context) {
 
 export function loadMap(nr){
     console.log("loading map")
-    fetch(`assets/maps/map_${nr}.json`)
+    return fetch(`assets/maps/map_${nr}.json`)
         .then((res) => {
             if(!res.ok){
                 console.log("Error loading map");
@@ -52,24 +55,13 @@ export function loadMap(nr){
 }
 function updateTiles(data){
     if(!data) return;
-    data.platforms.forEach((platform, rowIndex) => {
+    splitMap(...data.map_size);
+    data.platforms.forEach((platform) => {
         // Assuming each platform in data.platforms is an array [startX, endX, startY, endY]
         const [startX, endX, startY, endY] = platform;
-    
-        // Ensure that the rowIndex is within bounds
-        if (rowIndex < 0 || rowIndex >= mapTiles.length) {
-            console.log("Wrong row index:", rowIndex);
-            return;
-        }
-        // Ensure the coordinates are within the bounds of the mapTiles array
-        if (startX < 0 || startX >= mapTiles[rowIndex].length || endX < 0 || endX >= mapTiles[rowIndex].length) {
-            console.log("Invalid X coordinates:", startX, endX);
-            return;
-        }
-        if (startY < 0 || startY >= mapTiles.length || endY < 0 || endY >= mapTiles.length) {
-            console.log("Invalid Y coordinates:", startY, endY);
-            return;
-        }
+
+        if(startX < 0) return;
+        if(startY < 0) return;
         
         // Update the type of map tiles between the coordinates
         for (let x = startX; x <= endX; x++) {
@@ -83,6 +75,8 @@ function updateTiles(data){
             }
         }
     });
+    udpateMapCanvasDimension(rowCount * tileWidth, columnCount * tileHeight);
+    drawMap();
 }
 export function drawMap(){
     let color = "";
@@ -120,5 +114,5 @@ export function getContext(){
 }
 
 export function getMapDimension(){
-    return [rowCount, columnCount];
+    return [rowCount * tileWidth, columnCount * tileHeight];
 }

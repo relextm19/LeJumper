@@ -1,12 +1,14 @@
-import { canvas } from "./main.js";
+import { getMapDimension } from "./map.js";
+
 const camera = {
     x: 0,
     y: 0,
 }
-
+let limitX, limitY;
 export function initCamera(){
     camera.x = 0;
     camera.y = 0;
+    console.log("camera initialzied");
 }
 
 export function getCameraPosition(){
@@ -14,10 +16,12 @@ export function getCameraPosition(){
 }
 
 export function updateCameraPosition(x, y){
-    camera.x = x - canvas.width / 2; // Center horizontally
-    camera.y = y - canvas.height / 2; // Center vertically
+    [limitX, limitY] = getMapDimension();
+    camera.x = x - limitX / 2; // Center horizontally
+    camera.y = y - limitY / 2; // Center vertically
     if(camera.x < 0) camera.x = 0;
-    else if(camera.x > canvas.width) camera.x = canvas.width;
+    else if(camera.x > limitX) camera.x = limitX;
     if(camera.y < 0) camera.y = 0;
-    else if(camera.y > canvas.height) camera.y = canvas.height;
+    else if(camera.y > limitY) camera.y = limitY;
+    console.log("Camera y: ", camera.y, "limit y / 2: ", limitY / 2)
 }

@@ -5,7 +5,7 @@ let onGround, tileWidth, tileHeight;
 const ax = 0.5; // x acceleration
 const ay = 12; // y acceleration
 const aax = 0.3; // acceleration while in air
-let spawnX, spawnY;
+let limitX, limitY;
 
 export const player = {
     x: 0,
@@ -26,17 +26,17 @@ const keys = {
 
 
 export function initPlayer(callback) {
-    spawnX = 0;
-    spawnY = canvas.height;
+    [limitX, limitY] = MapModule.getMapDimension();
     [tileWidth, tileHeight] = MapModule.getTileDimension();
-    player.x = spawnX; 
-    player.y = spawnY;
+    player.x = 0; 
+    player.y = 0;
     player.width = tileHeight;
     player.height = tileHeight - 1; //if the player size gets higher than the tile the collision breaks
     player.vy = 0;
-    player.vx = 0;
+    player.vx = 0;  
     player.image.src = "assets/img/lebombom1.png";
     player.image.onload = callback;
+    console.log("Player initalzied");
 }
 
 export function updatePlayer(deltaTime) {
@@ -64,8 +64,9 @@ export function updatePlayer(deltaTime) {
 }
 
 function checkPlayerBounds() {
-    if (player.y + player.height > canvas.height) {
-        player.y = canvas.height - player.height; 
+    console.log("Player y: ", player.y)
+    if (player.y + player.height > limitY) {
+        player.y = limitY - player.height; 
         player.vy = 0;
         onGround = true;
     } 
@@ -77,10 +78,10 @@ function checkPlayerBounds() {
         player.x = 0;
         player.vx = -player.vx;
     }
-    // if (player.x > canvas.width - player.width) {
-    //     player.x = canvas.width - player.width;
-    //     player.vx = -player.vx;
-    // }
+    if (player.x > limitX - player.width) {
+        player.x = limitX - player.width;
+        player.vx = -player.vx;
+    }
 }
 function checkMapCollision() {
     const mapTiles = MapModule.getMapTiles();
