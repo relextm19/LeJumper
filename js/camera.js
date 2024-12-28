@@ -16,13 +16,15 @@ export function getCameraPosition(){
     return [camera.x,camera.y];
 }
 
-export function updateCameraPosition(x, y){
+export function updateCameraX(x){
     [limitX, limitY] = getMapDimension();
-    camera.x = x - limitX / 2; // Center horizontally
-    camera.y = y - limitY / 2; // Center vertically
+    camera.x = x - canvas.width / 2; // Center horizontally
     if(camera.x < 0) camera.x = 0;
     else if(camera.x > limitX - canvas.width) camera.x = limitX - canvas.width;
+}
+export function updateCameraY(y){
+    [limitX, limitY] = getMapDimension();
+    camera.y = y - canvas.height / 2; // Center vertically
     if(camera.y < 0) camera.y = 0;
-    else if(camera.y > limitY + canvas.height) camera.y = limitY + canvas.height;
-    console.log("Camera y: ", camera.y, "limit y / 2: ", limitY / 2)
+    else if(camera.y > limitY - canvas.height) camera.y = limitY - canvas.height;
 }

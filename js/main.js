@@ -37,7 +37,7 @@ function draw() {
     //draw map
     ctx.drawImage(MapModule.getMapCanvas(),0 - cameraX, 0 - cameraY);
     // Draw the player image
-    ctx.drawImage(PlayerModule.player.image, PlayerModule.player.x - cameraX, PlayerModule.player.y, PlayerModule.player.width, PlayerModule.player.height);
+    ctx.drawImage(PlayerModule.player.image, PlayerModule.player.x - cameraX, PlayerModule.player.y - cameraY, PlayerModule.player.width, PlayerModule.player.height);
 }
 initalizeAll();
 const gameLoopInterval = setInterval(gameLoop, 1000 / 60);

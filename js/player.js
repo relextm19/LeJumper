@@ -1,8 +1,7 @@
 import * as MapModule from "./map.js";
 import { canvas, gravity, friction, airResistance } from "./main.js";
-import { updateCameraPosition } from "./camera.js";
+import { updateCameraX, updateCameraY } from "./camera.js";
 let onGround, tileWidth, tileHeight;
-//FIXME: the perception of acceleration is dependent on the monitor resolution
 let limitX, limitY;
 
 export const player = {
@@ -64,14 +63,13 @@ export function updatePlayer(deltaTime) {
     //check collision with map elements
     checkMapCollision();
 
-    updateCameraPosition(player.x, player.y);
+    updateCameraY(player.y);
+    updateCameraX(player.x);
 }
 
 function checkPlayerBounds() {
-    //TODO: fix the function so its compatible with the new map
-    console.log("Player y: ", player.y)
-    if (player.y + player.height > canvas.height) {
-        player.y = canvas.height - player.height; 
+    if (player.y + player.height > limitY) {
+        player.y = limitY - player.height; 
         player.vy = 0;
         onGround = true;
     } 
@@ -89,6 +87,7 @@ function checkPlayerBounds() {
     }
 }
 function checkMapCollision() {
+    //TODO: fix the side collision triggering when the player is coming from to bottom of the tile and split it into another file
     const mapTiles = MapModule.getMapTiles();
     mapTiles.forEach((row, rowIndex) => {
         row.forEach((tile, colIndex) => {
@@ -194,9 +193,6 @@ function keysUp(e) {
     }
 }
 
-export function getSpawnCoords(){
-    return [spawnX, spawnY];
-}
 
 //event listener for player movement
 document.addEventListener("keydown", keysDown);
