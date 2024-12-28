@@ -14,10 +14,10 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 async function initalizeAll(){
-    initCamera();
-
     MapModule.initMap();
     await MapModule.loadMap(1);
+
+    initCamera();
     
     PlayerModule.initPlayer(gameLoop);
 }

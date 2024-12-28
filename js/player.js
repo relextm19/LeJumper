@@ -2,9 +2,7 @@ import * as MapModule from "./map.js";
 import { canvas, gravity, friction, airResistance } from "./main.js";
 import { updateCameraPosition } from "./camera.js";
 let onGround, tileWidth, tileHeight;
-const ax = 0.5; // x acceleration
-const ay = 12; // y acceleration
-const aax = 0.3; // acceleration while in air
+//FIXME: the perception of acceleration is dependent on the monitor resolution
 let limitX, limitY;
 
 export const player = {
@@ -14,6 +12,9 @@ export const player = {
     height: 0,
     vy: 0,
     vx: 0,
+    ax: 0,
+    ay: 0,
+    aax: 0,
     image: new Image()
 };
 
@@ -34,6 +35,9 @@ export function initPlayer(callback) {
     player.height = tileHeight - 1; //if the player size gets higher than the tile the collision breaks
     player.vy = 0;
     player.vx = 0;  
+    player.ax = tileWidth * 0.01;
+    player.ay = tileHeight * 0.3;
+    player.aax = tileWidth * 0.005;
     player.image.src = "assets/img/lebombom1.png";
     player.image.onload = callback;
     console.log("Player initalzied");
@@ -64,9 +68,10 @@ export function updatePlayer(deltaTime) {
 }
 
 function checkPlayerBounds() {
+    //TODO: fix the function so its compatible with the new map
     console.log("Player y: ", player.y)
-    if (player.y + player.height > limitY) {
-        player.y = limitY - player.height; 
+    if (player.y + player.height > canvas.height) {
+        player.y = canvas.height - player.height; 
         player.vy = 0;
         onGround = true;
     } 
@@ -140,18 +145,18 @@ function type1Collision(rowIndex, colIndex) {
 
 export function playerMovement() {
     if (keys.left) {
-        if(onGround) player.vx -= ax;
-        else player.vx -= aax;
+        if(onGround) player.vx -= player.ax;
+        else player.vx -= player.aax;
     }
     if (keys.right) {
-        if(onGround) player.vx += ax;
-        else player.vx += aax;
+        if(onGround) player.vx += player.ax;
+        else player.vx += player.aax;
     }
     if (keys.up && onGround) {
-        player.vy -= ay;
+        player.vy -= player.ay;
     }
     if (keys.down) {
-        player.vy += ay * 0.02;
+        player.vy += player.ay * 0.02;
     }
 }
 
