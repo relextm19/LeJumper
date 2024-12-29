@@ -1,5 +1,6 @@
 import * as PlayerModule from "./player.js"; 
 import * as MapModule from "./map.js";
+import { initCollision } from "./collison.js";
 import { initCamera, getCameraPosition } from "./camera.js";
 
 // Game variables
@@ -17,6 +18,7 @@ async function initalizeAll(){
     MapModule.initMap();
     await MapModule.loadMap(1);
 
+    initCollision();
     initCamera();
     
     PlayerModule.initPlayer(gameLoop);

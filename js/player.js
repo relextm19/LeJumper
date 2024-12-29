@@ -1,8 +1,8 @@
 import * as MapModule from "./map.js";
-import { canvas, gravity, friction, airResistance } from "./main.js";
+import { gravity, friction, airResistance } from "./main.js";
+import { checkPlayerTileCollision, checkPlayerBounds } from "./collison.js";
 import { updateCameraX, updateCameraY } from "./camera.js";
 let onGround, tileWidth, tileHeight;
-let limitX, limitY;
 
 export const player = {
     x: 0,
@@ -24,14 +24,17 @@ const keys = {
     right: false
 };
 
+const state = {
+    onGround: false
+};
+
 
 export function initPlayer(callback) {
-    [limitX, limitY] = MapModule.getMapDimension();
     [tileWidth, tileHeight] = MapModule.getTileDimension();
     player.x = 0; 
     player.y = 0;
     player.width = tileHeight;
-    player.height = tileHeight - 1; //if the player size gets higher than the tile the collision breaks
+    player.height = tileHeight; //if the player size gets higher than the tile the collision breaks
     player.vy = 0;
     player.vx = 0;  
     player.ax = tileWidth * 0.01;
@@ -47,19 +50,19 @@ export function updatePlayer(deltaTime) {
     // Apply gravity to the vertical
     player.vy += gravity * equalizer;
     // Apply friction to the horizontal
-    if(onGround) player.vx *= friction;
+    if(state.onGround) player.vx *= friction;
     else player.vx *= airResistance;
     
-
     // Update player velocity based on key states
     playerMovement();
 
     // Update player position
     player.y += player.vy * equalizer;
     player.x += player.vx * equalizer;
-    onGround = false;
+    state.onGround = false;
+
     //check collision with screen bounds
-    checkPlayerBounds();
+    checkPlayerBounds(player, state);
     //check collision with map elements
     checkMapCollision();
 
@@ -67,91 +70,29 @@ export function updatePlayer(deltaTime) {
     updateCameraX(player.x);
 }
 
-function checkPlayerBounds() {
-    if (player.y + player.height > limitY) {
-        player.y = limitY - player.height; 
-        player.vy = 0;
-        onGround = true;
-    } 
-    if (player.y < 0) {
-        player.y = 0; 
-        player.vy = 0;
-    }
-    if (player.x < 0) {
-        player.x = 0;
-        player.vx = -player.vx;
-    }
-    if (player.x > limitX - player.width) {
-        player.x = limitX - player.width;
-        player.vx = -player.vx;
-    }
-}
 function checkMapCollision() {
     //TODO: fix the side collision triggering when the player is coming from to bottom of the tile and split it into another file
     const mapTiles = MapModule.getMapTiles();
-    mapTiles.forEach((row, rowIndex) => {
-        row.forEach((tile, colIndex) => {
+    mapTiles.forEach((row) => {
+        row.forEach((tile) => {
+            if(!tile.solid) return;
+            checkPlayerTileCollision(player, tile, state)
             if (tile.type == 1) { 
-               type1Collision(rowIndex, colIndex);
             }
         });
     });
 }
-function type1Collision(rowIndex, colIndex) {
-    const tileY = rowIndex * tileHeight;
-    const tileX = colIndex * tileWidth;
-    // Check collision with bottom and top of a tile
-    if (player.x + player.width > tileX && player.x < tileX + tileWidth) {
-        // Check if the player is hitting the top of the block
-        if (
-            player.y + player.height > tileY &&
-            player.y < tileY && //create a buffer to account for errors
-            player.vy > 0 // Ensure player is falling
-        ) {
-            onGround = true;
-            player.vy = 0;
-            player.y = tileY - player.height; // Snap player to the top of the block
-        }
-        // Check if the player is hitting the bottom of the block
-        else if (
-            player.y < tileY + tileHeight &&
-            player.y + player.height > tileY + tileHeight &&
-            player.vy < 0 // Ensure player is moving upward
-        ) {
-            player.y = tileY + tileHeight; // Snap player below the block
-            player.vy = 0; // Stop upward movement
-        }
-    }
-
-    // Check collision with left and right side of a tile
-    if (
-        player.y + player.height > tileY &&
-        player.y < tileY + tileHeight &&
-        !(onGround && player.vy > 0) // Ignore when player is falling off the tile's side
-    ) {
-        // Left side collision
-        if (player.x + player.width > tileX && player.x < tileX) {
-            player.vx = 0;
-            player.x = tileX - player.width;
-        }
-        // Right side collision
-        else if (player.x < tileX + tileWidth && player.x + player.width > tileX + tileWidth) {
-            player.vx = 0;
-            player.x = tileX + tileWidth;
-        }
-    }
-}
 
 export function playerMovement() {
     if (keys.left) {
-        if(onGround) player.vx -= player.ax;
+        if(state.onGround) player.vx -= player.ax;
         else player.vx -= player.aax;
     }
     if (keys.right) {
-        if(onGround) player.vx += player.ax;
+        if(state.onGround) player.vx += player.ax;
         else player.vx += player.aax;
     }
-    if (keys.up && onGround) {
+    if (keys.up && state.onGround) {
         player.vy -= player.ay;
     }
     if (keys.down) {

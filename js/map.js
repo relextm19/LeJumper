@@ -24,7 +24,14 @@ export function splitMap(endX, endY){
     for (let y = 0; y < rowCount; y += 1) {
         const row = [];
         for (let x = 0; x < columnCount; x += 1) {
-            const tile = {type: 0};
+            const tile = {
+                type: 0,
+                solid: false,
+                y: y * tileHeight,
+                x: x * tileWidth,
+                width: tileWidth,
+                height: tileHeight
+            };
             row.push(tile);
         }
         mapTiles.push(row);
@@ -69,6 +76,7 @@ function updateTiles(data){
                 // Check if the tile exists at the given coordinates
                 if (mapTiles[y] && mapTiles[y][x]) {
                     mapTiles[y][x].type = 1; 
+                    mapTiles[y][x].solid = true;
                 } else {
                     console.log("Invalid tile at:", x, y);
                 }
