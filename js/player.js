@@ -25,7 +25,11 @@ const keys = {
 };
 
 const state = {
-    onGround: false
+    onGround: false,
+    collidingTop: false,
+    collidingBot: false,
+    collidingLeft: false,
+    collidingRight: false
 };
 
 
@@ -33,8 +37,8 @@ export function initPlayer(callback) {
     [tileWidth, tileHeight] = MapModule.getTileDimension();
     player.x = 0; 
     player.y = 0;
-    player.width = tileHeight;
-    player.height = tileHeight; //if the player size gets higher than the tile the collision breaks
+    player.width = tileHeight - 10;
+    player.height = tileHeight - 10; //if the player size gets higher than the tile the collision breaks
     player.vy = 0;
     player.vx = 0;  
     player.ax = tileWidth * 0.01;
@@ -71,16 +75,44 @@ export function updatePlayer(deltaTime) {
 }
 
 function checkMapCollision() {
-    //TODO: fix the side collision triggering when the player is coming from to bottom of the tile and split it into another file
     const mapTiles = MapModule.getMapTiles();
+    let collisionDetected = false;
     mapTiles.forEach((row) => {
         row.forEach((tile) => {
-            if(!tile.solid) return;
-            checkPlayerTileCollision(player, tile, state)
-            if (tile.type == 1) { 
+            if (!tile.solid) return;
+            clearCollisionState();
+            checkPlayerTileCollision(player, tile, state);
+            if (state.collidingTop) {
+                player.vy = 0;
+                player.y = tile.y - player.height;
+                state.onGround = true;
+                collisionDetected = true;
+            } else if (state.collidingBot) {
+                player.vy = 0;
+                player.y = tile.y + tile.height;
+                collisionDetected = true;
+            } else if (state.collidingLeft) {
+                player.vx = 0;
+                player.x = tile.x - player.width;
+                collisionDetected = true;
+            } else if (state.collidingRight) {
+                player.vx = 0;
+                player.x = tile.x + tile.width;
+                collisionDetected = true;
             }
+
+            if (collisionDetected) return true;
         });
     });
+    return false;
+}
+
+
+function clearCollisionState() {
+    state.collidingLeft = false;
+    state.collidingRight = false;
+    state.collidingTop = false;
+    state.collidingBot = false;
 }
 
 export function playerMovement() {

@@ -24,25 +24,28 @@ export function checkPlayerBounds(player, state) {
     }
 }
 export function checkPlayerTileCollision(player, tile, state) {
-    const collisionX = (player.x + player.width > tile.x && player.x < tile.x + tile.width);
-    const collisionY = (player.y + player.height > tile.y && player.y < tile.y + tile.height);
-    if (collisionY && collisionX) {
-        if(player.y + player.height > tile.y && player.y < tile.y){ // top
-            player.y = tile.y - player.height;
-            player.vy = 0;
-            state.onGround = true;
-        }
-        else if(player.y < tile.y + tile.height && player.y + player.height > tile.y + tile.height){ // bottom
-            player.y = tile.y + tile.height;
-            player.vy = 0;
-        }
+    // const collision = {
+    //     top: false,
+    //     bottom: false,
+    //     left: false,
+    //     right: false,
+    // };
 
-        if(player.x + player.width > tile.x && player.x < tile.x){ // left
-            player.x = tile.x - player.width;
-            player.vx = 0;
-        } else if(player.x < tile.x + tile.width && player.x + player.width > tile.x + tile.width){ //right
-            player.x = tile.x + tile.width;
-            player.vx = 0;
+    // Vertical collision
+    if (player.x + player.width > tile.x && player.x < tile.x + tile.width) {
+        if (player.y + player.height > tile.y && player.y < tile.y && player.vy > 0) {
+            state.collidingTop = true;
+        } else if (player.y < tile.y + tile.height && player.y + player.height > tile.y + tile.height && player.vy < 0) {
+            state.collidingBot = true;
+        }
+    }
+
+    // Horizontal collision
+    if (player.y + player.height > tile.y && player.y < tile.y + tile.height) {
+        if (player.x + player.width > tile.x && player.x < tile.x) {
+            state.collidingLeft = true;
+        } else if (player.x < tile.x + tile.width && player.x + player.width > tile.x + tile.width) {
+            state.collidingRight = true;
         }
     }
 }
