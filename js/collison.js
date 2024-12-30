@@ -24,18 +24,12 @@ export function checkPlayerBounds(player, state) {
     }
 }
 export function checkPlayerTileCollision(player, tile, state) {
-    // const collision = {
-    //     top: false,
-    //     bottom: false,
-    //     left: false,
-    //     right: false,
-    // };
-
     // Vertical collision
     if (player.x + player.width > tile.x && player.x < tile.x + tile.width) {
         if (player.y + player.height > tile.y && player.y < tile.y && player.vy > 0) {
             state.collidingTop = true;
         } else if (player.y < tile.y + tile.height && player.y + player.height > tile.y + tile.height && player.vy < 0) {
+            console.log(player.vy)
             state.collidingBot = true;
         }
     }

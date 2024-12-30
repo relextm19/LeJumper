@@ -2,7 +2,7 @@ import * as MapModule from "./map.js";
 import { gravity, friction, airResistance } from "./main.js";
 import { checkPlayerTileCollision, checkPlayerBounds } from "./collison.js";
 import { updateCameraX, updateCameraY } from "./camera.js";
-let onGround, tileWidth, tileHeight;
+let tileWidth, tileHeight;
 
 export const player = {
     x: 0,
@@ -51,27 +51,35 @@ export function initPlayer(callback) {
 
 export function updatePlayer(deltaTime) {
     const equalizer = deltaTime * 0.1;
-    // Apply gravity to the vertical
-    player.vy += gravity * equalizer;
-    // Apply friction to the horizontal
-    if(state.onGround) player.vx *= friction;
-    else player.vx *= airResistance;
     
+    applyResistanceForces(equalizer);
+
     // Update player velocity based on key states
     playerMovement();
+    updatePlayerPosition(equalizer);
 
-    // Update player position
-    player.y += player.vy * equalizer;
-    player.x += player.vx * equalizer;
     state.onGround = false;
 
     //check collision with screen bounds
     checkPlayerBounds(player, state);
     //check collision with map elements
-    checkMapCollision();
+    checkMapCollision(); //FIXME: the player cant fucking jump when he is running into a tile
 
     updateCameraY(player.y);
     updateCameraX(player.x);
+}
+
+function applyResistanceForces(equalizer){
+    // Apply gravity to the vertical
+    player.vy += gravity * equalizer;
+    // Apply friction to the horizontal
+    if(state.onGround) player.vx *= Math.pow(friction, equalizer);
+    else player.vx *= Math.pow(airResistance, equalizer);
+}
+
+function updatePlayerPosition(equalizer){
+    player.y += player.vy * equalizer;
+    player.x += player.vx * equalizer;
 }
 
 function checkMapCollision() {
@@ -87,7 +95,7 @@ function checkMapCollision() {
                 player.y = tile.y - player.height;
                 state.onGround = true;
                 collisionDetected = true;
-            } else if (state.collidingBot) {
+            } else if (state.collidingBot && !state.onGround) {
                 player.vy = 0;
                 player.y = tile.y + tile.height;
                 collisionDetected = true;
