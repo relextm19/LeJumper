@@ -2,6 +2,7 @@ import * as PlayerModule from "./player.js";
 import * as MapModule from "./map.js";
 import { initCollision } from "./collison.js";
 import { initCamera, getCameraPosition } from "./camera.js";
+import { initTurtleEnemy, turtleEnemy, updateTurtleEnemy } from "./enemy.js";
 
 // Game variables
 export const gravity = 0.5; 
@@ -22,14 +23,19 @@ async function initalizeAll(){
     initCamera();
     
     PlayerModule.initPlayer(gameLoop);
+    initTurtleEnemy();
+    console.log(turtleEnemy)
 }
 let lastTime = Date.now();
 function gameLoop() {
     const currentTime = Date.now();
     let deltaTime = currentTime - lastTime;
+
     PlayerModule.updatePlayer(deltaTime);
-    lastTime = currentTime;
+    updateTurtleEnemy(deltaTime);
     draw();
+
+    lastTime = currentTime;
 }
 
 function draw() {
@@ -40,6 +46,8 @@ function draw() {
     ctx.drawImage(MapModule.getMapCanvas(),0 - cameraX, 0 - cameraY);
     // Draw the player image
     ctx.drawImage(PlayerModule.player.image, PlayerModule.player.x - cameraX, PlayerModule.player.y - cameraY, PlayerModule.player.width, PlayerModule.player.height);
+    // Draw the turtle enemy image
+    ctx.drawImage(turtleEnemy.image, turtleEnemy.x - cameraX, turtleEnemy.y - cameraY, turtleEnemy.width, turtleEnemy.height);
 }
 initalizeAll();
 const gameLoopInterval = setInterval(gameLoop, 1000 / 60);

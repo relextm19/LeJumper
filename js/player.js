@@ -1,7 +1,7 @@
 import * as MapModule from "./map.js";
-import { gravity, friction, airResistance } from "./main.js";
-import { checkPlayerTileCollision, checkPlayerBounds } from "./collison.js";
+import { checkEntityTileCollision, checkEntityBounds } from "./collison.js";
 import { updateCameraX, updateCameraY } from "./camera.js";
+import { applyResistanceForces, updateEntityPosition } from "./physics.js";
 let tileWidth, tileHeight;
 
 export const player = {
@@ -14,7 +14,14 @@ export const player = {
     ax: 0,
     ay: 0,
     aax: 0,
-    image: new Image()
+    image: new Image(),
+    state: {
+        onGround: false,
+        collidingTop: false,
+        collidingBot: false,
+        collidingLeft: false,
+        collidingRight: false
+    }
 };
 
 const keys = {
@@ -23,15 +30,6 @@ const keys = {
     left: false,
     right: false
 };
-
-const state = {
-    onGround: false,
-    collidingTop: false,
-    collidingBot: false,
-    collidingLeft: false,
-    collidingRight: false
-};
-
 
 export function initPlayer(callback) {
     [tileWidth, tileHeight] = MapModule.getTileDimension();
@@ -46,41 +44,29 @@ export function initPlayer(callback) {
     player.aax = tileWidth * 0.005;
     player.image.src = "assets/img/lebombom1.png";
     player.image.onload = callback;
-    console.log("Player initalzied");
+    console.log("Player initialized");
 }
 
 export function updatePlayer(deltaTime) {
     const equalizer = deltaTime * 0.1;
     
-    applyResistanceForces(equalizer);
+    applyResistanceForces(player, equalizer, player.state);
 
     // Update player velocity based on key states
     playerMovement();
-    updatePlayerPosition(equalizer);
+    updateEntityPosition(player, equalizer);    
 
-    state.onGround = false;
+    player.state.onGround = false;
 
-    //check collision with screen bounds
-    checkPlayerBounds(player, state);
-    //check collision with map elements
-    checkMapCollision(); //FIXME: the player cant fucking jump when he is running into a tile
+    // Check collision with screen bounds
+    checkEntityBounds(player, player.state);
+    // Check collision with map elements
+    checkMapCollision(); //FIXME: the player can't jump when he is running into a tile
 
     updateCameraY(player.y);
     updateCameraX(player.x);
 }
 
-function applyResistanceForces(equalizer){
-    // Apply gravity to the vertical
-    player.vy += gravity * equalizer;
-    // Apply friction to the horizontal
-    if(state.onGround) player.vx *= Math.pow(friction, equalizer);
-    else player.vx *= Math.pow(airResistance, equalizer);
-}
-
-function updatePlayerPosition(equalizer){
-    player.y += player.vy * equalizer;
-    player.x += player.vx * equalizer;
-}
 
 function checkMapCollision() {
     const mapTiles = MapModule.getMapTiles();
@@ -88,51 +74,50 @@ function checkMapCollision() {
     mapTiles.forEach((row) => {
         row.forEach((tile) => {
             if (!tile.solid) return;
-            clearCollisionState();
-            checkPlayerTileCollision(player, tile, state);
-            if (state.collidingTop) {
+            clearCollisionState();  
+            checkEntityTileCollision(player, tile, player.state);
+            if (player.state.collidingTop) {
                 player.vy = 0;
                 player.y = tile.y - player.height;
-                state.onGround = true;
+                player.state.onGround = true;
                 collisionDetected = true;
-            } else if (state.collidingBot && !state.onGround) {
+            } else if (player.state.collidingBot && !player.state.onGround) {
                 player.vy = 0;
                 player.y = tile.y + tile.height;
                 collisionDetected = true;
-            } else if (state.collidingLeft) {
+            } else if (player.state.collidingLeft) {
                 player.vx = 0;
                 player.x = tile.x - player.width;
                 collisionDetected = true;
-            } else if (state.collidingRight) {
+            } else if (player.state.collidingRight) {
                 player.vx = 0;
                 player.x = tile.x + tile.width;
                 collisionDetected = true;
             }
 
-            if (collisionDetected) return true;
+            if (collisionDetected) return;
         });
+        if (collisionDetected) return;
     });
-    return false;
 }
 
-
 function clearCollisionState() {
-    state.collidingLeft = false;
-    state.collidingRight = false;
-    state.collidingTop = false;
-    state.collidingBot = false;
+    player.state.collidingLeft = false;
+    player.state.collidingRight = false;
+    player.state.collidingTop = false;
+    player.state.collidingBot = false;
 }
 
 export function playerMovement() {
     if (keys.left) {
-        if(state.onGround) player.vx -= player.ax;
+        if (player.state.onGround) player.vx -= player.ax;
         else player.vx -= player.aax;
     }
     if (keys.right) {
-        if(state.onGround) player.vx += player.ax;
+        if (player.state.onGround) player.vx += player.ax;
         else player.vx += player.aax;
     }
-    if (keys.up && state.onGround) {
+    if (keys.up && player.state.onGround) {
         player.vy -= player.ay;
     }
     if (keys.down) {
@@ -141,7 +126,7 @@ export function playerMovement() {
 }
 
 function keysDown(e) {
-    switch(e.key) {
+    switch (e.key) {
         case "ArrowLeft":
             keys.left = true;
             break;
@@ -158,7 +143,7 @@ function keysDown(e) {
 }
 
 function keysUp(e) {
-    switch(e.key) {
+    switch (e.key) {
         case "ArrowLeft":
             keys.left = false;
             break;
@@ -174,7 +159,6 @@ function keysUp(e) {
     }
 }
 
-
-//event listener for player movement
+// Event listener for player movement
 document.addEventListener("keydown", keysDown);
 document.addEventListener("keyup", keysUp);
