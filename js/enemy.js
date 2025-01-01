@@ -1,4 +1,4 @@
-import { checkEntityBounds } from "./collison.js";
+import { checkMapCollision } from "./collison.js";
 import { getTileDimension } from "./map.js";
 import { updateEntityPosition, applyResistanceForces } from "./physics.js";
 
@@ -27,10 +27,10 @@ let tileHeight = 0;
 
 export function initTurtleEnemy() {
     [tileWidth, tileHeight] = getTileDimension();
-    turtleEnemy.x = 0; 
+    turtleEnemy.x = tileWidth; 
     turtleEnemy.y = 0;
     turtleEnemy.width = tileHeight - 10;
-    turtleEnemy.height = tileHeight - 10; //if the player size gets higher than the tile the collision breaks
+    turtleEnemy.height = tileHeight - 10; 
     turtleEnemy.vy = 0;
     turtleEnemy.vx = 0;  
     turtleEnemy.ax = tileWidth * 0.01;
@@ -44,5 +44,5 @@ export function updateTurtleEnemy(deltaTime) {
     const equalizer = deltaTime * 0.1;
     applyResistanceForces(turtleEnemy, equalizer, turtleEnemy.state);
     updateEntityPosition(turtleEnemy, equalizer);
-    checkEntityBounds(turtleEnemy, turtleEnemy.state);
+    checkMapCollision(turtleEnemy);
 }

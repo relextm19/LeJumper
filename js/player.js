@@ -1,7 +1,8 @@
 import * as MapModule from "./map.js";
-import { checkEntityTileCollision, checkEntityBounds } from "./collison.js";
+import { checkMapCollision } from "./collison.js";
 import { updateCameraX, updateCameraY } from "./camera.js";
 import { applyResistanceForces, updateEntityPosition } from "./physics.js";
+import { addEntity } from "./gameState.js";
 let tileWidth, tileHeight;
 
 export const player = {
@@ -33,7 +34,7 @@ const keys = {
 
 export function initPlayer(callback) {
     [tileWidth, tileHeight] = MapModule.getTileDimension();
-    player.x = 0; 
+    player.x = tileWidth; 
     player.y = 0;
     player.width = tileHeight - 10;
     player.height = tileHeight - 10; //if the player size gets higher than the tile the collision breaks
@@ -45,6 +46,7 @@ export function initPlayer(callback) {
     player.image.src = "assets/img/lebombom1.png";
     player.image.onload = callback;
     console.log("Player initialized");
+    addEntity(player);
 }
 
 export function updatePlayer(deltaTime) {
@@ -59,53 +61,12 @@ export function updatePlayer(deltaTime) {
     player.state.onGround = false;
 
     // Check collision with screen bounds
-    checkEntityBounds(player, player.state);
+    // checkEntityBounds(player);
     // Check collision with map elements
-    checkMapCollision(); //FIXME: the player can't jump when he is running into a tile
+    checkMapCollision(player); //FIXME: the player can't jump when he is running into a tile
 
     updateCameraY(player.y);
     updateCameraX(player.x);
-}
-
-
-function checkMapCollision() {
-    const mapTiles = MapModule.getMapTiles();
-    let collisionDetected = false;
-    mapTiles.forEach((row) => {
-        row.forEach((tile) => {
-            if (!tile.solid) return;
-            clearCollisionState();  
-            checkEntityTileCollision(player, tile, player.state);
-            if (player.state.collidingTop) {
-                player.vy = 0;
-                player.y = tile.y - player.height;
-                player.state.onGround = true;
-                collisionDetected = true;
-            } else if (player.state.collidingBot && !player.state.onGround) {
-                player.vy = 0;
-                player.y = tile.y + tile.height;
-                collisionDetected = true;
-            } else if (player.state.collidingLeft) {
-                player.vx = 0;
-                player.x = tile.x - player.width;
-                collisionDetected = true;
-            } else if (player.state.collidingRight) {
-                player.vx = 0;
-                player.x = tile.x + tile.width;
-                collisionDetected = true;
-            }
-
-            if (collisionDetected) return;
-        });
-        if (collisionDetected) return;
-    });
-}
-
-function clearCollisionState() {
-    player.state.collidingLeft = false;
-    player.state.collidingRight = false;
-    player.state.collidingTop = false;
-    player.state.collidingBot = false;
 }
 
 export function playerMovement() {
