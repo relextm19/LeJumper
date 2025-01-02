@@ -42,7 +42,7 @@ export function initTurtleEnemy() {
 
 export function updateTurtleEnemy(deltaTime) {
     const equalizer = deltaTime * 0.1;
-    applyResistanceForces(turtleEnemy, equalizer, turtleEnemy.state);
+    applyResistanceForces(turtleEnemy, equalizer);
     updateEntityPosition(turtleEnemy, equalizer);
     checkMapCollision(turtleEnemy);
 }

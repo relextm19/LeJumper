@@ -4,6 +4,7 @@ export function initCollision(){
     [limitX, limitY] = getMapDimension();
     console.log("Collision initalzied");
 }
+
 export function checkEntityBounds(entity) {
     if (entity.y + entity.height > limitY) {
         entity.state.onGround = true;
@@ -18,12 +19,15 @@ export function checkEntityBounds(entity) {
     if (entity.x > limitX - entity.width) {
         entity.state.collidingRight = true;
     }
+    handleCollsionState(entity);
 }
+
 export function checkEntityTileCollision(entity, tile) {
     // Vertical collision
     if (entity.x + entity.width > tile.x && entity.x < tile.x + tile.width) {
         if (entity.y + entity.height > tile.y && entity.y < tile.y && entity.vy > 0) {
             entity.state.collidingTop = true;
+            entity.state.onGround = true;
         } else if (entity.y < tile.y + tile.height && entity.y + entity.height > tile.y + tile.height && entity.vy < 0) {
             entity.state.collidingBot = true;
         }
@@ -47,29 +51,28 @@ export function checkMapCollision(entity) {
             if (!tile.solid) return;
             clearCollisionState(entity);  
             checkEntityTileCollision(entity, tile);
-            if (entity.state.collidingTop) {
-                entity.vy = 0;
-                entity.y = tile.y - entity.height;
-                entity.state.onGround = true;
-                collisionDetected = true;
-            } else if (entity.state.collidingBot && !entity.state.onGround) {
-                entity.vy = 0;
-                entity.y = tile.y + tile.height;
-                collisionDetected = true;
-            } else if (entity.state.collidingLeft) {
-                entity.vx = 0;
-                entity.x = tile.x - entity.width;
-                collisionDetected = true;
-            } else if (entity.state.collidingRight) {
-                entity.vx = 0;
-                entity.x = tile.x + tile.width;
-                collisionDetected = true;
-            }
-
+            handleCollsionState(entity, tile);
             if (collisionDetected) return;
         });
         if (collisionDetected) return;
     });
+}
+
+export function handleCollsionState(entity, tile) {
+    if (entity.state.collidingTop) {
+        entity.vy = 0;
+        entity.y = tile.y - entity.height;
+        entity.state.onGround = true;
+    } else if (entity.state.collidingBot) {
+        entity.vy = 0;
+        entity.y = tile.y + tile.height;
+    } else if (entity.state.collidingLeft) {
+        entity.vx = 0;
+        entity.x = tile.x - entity.width;
+    } else if (entity.state.collidingRight) {
+        entity.vx = 0;
+        entity.x = tile.x + tile.width;
+    }
 }
 
 function clearCollisionState(entity) {
@@ -78,3 +81,4 @@ function clearCollisionState(entity) {
     entity.state.collidingTop = false;
     entity.state.collidingBot = false;
 }
+
