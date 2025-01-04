@@ -60,11 +60,12 @@ export function loadMap(nr){
             }
         }).then(updateTiles)
 }
+
 function updateTiles(data){
     if(!data) return;
     splitMap(...data.map_size);
     data.platforms.forEach((platform) => {
-        // Assuming each platform in data.platforms is an array [startX, endX, startY, endY]
+        // each platform in data.platforms is an array [startX, endX, startY, endY]
         const [startX, endX, startY, endY] = platform;
 
         if(startX < 0) return;
@@ -74,7 +75,7 @@ function updateTiles(data){
         for (let x = startX; x <= endX; x++) {
             for (let y = startY; y <= endY; y++) {
                 // Check if the tile exists at the given coordinates
-                if (mapTiles[y] && mapTiles[y][x]) {
+                if (mapTiles[y] && mapTiles[y][x]) {//FIXME: The tile type is not always going to be 1 but its fine for now
                     mapTiles[y][x].type = 1; 
                     mapTiles[y][x].solid = true;
                 } else {

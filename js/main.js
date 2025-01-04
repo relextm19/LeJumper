@@ -24,7 +24,6 @@ async function initalizeAll(){
     
     PlayerModule.initPlayer(gameLoop);
     initTurtleEnemy();
-    console.log(turtleEnemy)
 }
 let lastTime = Date.now();
 function gameLoop() {

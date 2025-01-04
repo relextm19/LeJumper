@@ -1,5 +1,5 @@
 import { checkMapCollision } from "./collison.js";
-import { getTileDimension } from "./map.js";
+import { getTileDimension, getMapTiles } from "./map.js";
 import { updateEntityPosition, applyResistanceForces } from "./physics.js";
 
 export const turtleEnemy = {
@@ -53,16 +53,7 @@ function changeDirection() {
     turtleEnemy.state.direction *= -1;
 }
 
-function isDirectionChangedNeeded(entity){
-    /* we need to change the direction when:
-    we colide horizontally
-    we would drop of a tile which can be indicated by:
-        the tile we are on has no next tile and we are aproaching its edge
-    */
-    if(turtleEnemy.state.collidingBot || turtleEnemy.state.collidingTop || turtleEnemy.state.collidingLeft || turtleEnemy.state.collidingRight) console.log(turtleEnemy.state); 
-}
-
-function onCollision(entity, tile){
+function onCollision(entity, tile){ //TODO: change direction when about to fall of a tile
     //handle basic collision
     if (entity.state.collidingTop) {
         entity.vy = 0;
@@ -82,4 +73,15 @@ function onCollision(entity, tile){
         entity.x = tile.x + tile.width;
         changeDirection();
     }
+    if(isAboutToFall(entity)) changeDirection();
+}
+
+function isAboutToFall(entity){
+    const nextTileX = entity.vx > 0 ? Math.floor((entity.x + entity.width) / tileWidth) : Math.floor(entity.x / tileWidth) - 1; // mmm
+    const belowTileY = Math.floor((entity.y + entity.height) / tileHeight);
+    const mapTiles = getMapTiles(); 
+    if(nextTileX < 0 || nextTileX >= mapTiles[0].length) return true;
+    if (belowTileY < 0 || belowTileY >= mapTiles.length) return true;
+    if(!mapTiles[belowTileY][nextTileX].solid) return true;
+    return false;
 }
