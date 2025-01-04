@@ -1,9 +1,28 @@
-import { enities } from "./gameState.js";
 import { getMapDimension, getMapTiles } from "./map.js";
 let [limitX, limitY] = [0, 0]; 
 export function initCollision(){
     [limitX, limitY] = getMapDimension();
     console.log("Collision initalzied");
+}
+
+export function checkScreenBounds(entity){
+    if(entity.x < 0){
+        entity.x = 0;
+        entity.vx = 0;
+    } 
+    if(entity.x + entity.width > limitX){
+        entity.x = limitX - entity.width;
+        entity.vx = 0;
+    } 
+    if(entity.y < 0){
+        entity.y = 0;
+        entity.vy = 0;
+    } 
+    if(entity.y + entity.height > limitY) {
+        entity.y = limitY - entity.height;
+        entity.vy = 0;
+        entity.state.onGround = true;
+    }
 }
 
 export function checkEntityTileCollision(entity, tile) {

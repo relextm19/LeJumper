@@ -100,7 +100,7 @@ export function drawMap(){
                     color = "00FFFF";
                     break;
             }
-            drawRect(x * tileWidth, y * tileHeight, tileWidth, tileHeight, color, mapCtx);
+            drawRect(x * tileWidth, y * tileHeight, tileWidth - 1, tileHeight, color, mapCtx);
         }
     }
     return mapCanvas;

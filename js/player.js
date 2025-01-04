@@ -1,5 +1,5 @@
 import * as MapModule from "./map.js";
-import { checkMapCollision } from "./collison.js";
+import { checkMapCollision, checkScreenBounds } from "./collison.js";
 import { updateCameraX, updateCameraY } from "./camera.js";
 import { applyResistanceForces, updateEntityPosition } from "./physics.js";
 import { addEntity } from "./gameState.js";
@@ -59,6 +59,7 @@ export function updatePlayer(deltaTime) {
 
     player.state.onGround = false;
 
+    checkScreenBounds(player);
     checkMapCollision(player, onCollision); //FIXME: the player can't jump when he is running into a tile
 
     updateCameraY(player.y);

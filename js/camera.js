@@ -23,7 +23,7 @@ export function getCameraPosition(){
 export function updateCameraX(x){
     [limitX, limitY] = getMapDimension();
     camera.x = x - canvas.width / 2; // Center horizontally
-    if(camera.x < tileWidth) camera.x = tileWidth; //skip the first tile column cuz its suposed to be the map edge
+    if(camera.x < 0) camera.x = 0; 
     else if(camera.x > limitX - canvas.width) camera.x = limitX - canvas.width;
 }
 export function updateCameraY(y){
