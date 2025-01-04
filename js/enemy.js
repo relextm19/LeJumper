@@ -18,7 +18,8 @@ export const turtleEnemy = {
         collidingTop: false,
         collidingBot: false,
         collidingLeft: false,
-        collidingRight: false
+        collidingRight: false,
+        direction: 1 //1 is to the right and -1 to the left
     }
 };
 
@@ -42,7 +43,43 @@ export function initTurtleEnemy() {
 
 export function updateTurtleEnemy(deltaTime) {
     const equalizer = deltaTime * 0.1;
+    turtleEnemy.vx = 1 * turtleEnemy.state.direction;
     applyResistanceForces(turtleEnemy, equalizer);
     updateEntityPosition(turtleEnemy, equalizer);
-    checkMapCollision(turtleEnemy);
+    checkMapCollision(turtleEnemy, onCollision);
+}
+
+function changeDirection() {
+    turtleEnemy.state.direction *= -1;
+}
+
+function isDirectionChangedNeeded(entity){
+    /* we need to change the direction when:
+    we colide horizontally
+    we would drop of a tile which can be indicated by:
+        the tile we are on has no next tile and we are aproaching its edge
+    */
+    if(turtleEnemy.state.collidingBot || turtleEnemy.state.collidingTop || turtleEnemy.state.collidingLeft || turtleEnemy.state.collidingRight) console.log(turtleEnemy.state); 
+}
+
+function onCollision(entity, tile){
+    //handle basic collision
+    if (entity.state.collidingTop) {
+        entity.vy = 0;
+        entity.y = tile.y - entity.height;
+        entity.state.onGround = true;
+    } else if (entity.state.collidingBot) {
+        entity.vy = 0;
+        entity.y = tile.y + tile.height;
+    }
+    //change direction when colliding horizontally
+    else if (entity.state.collidingLeft) {
+        entity.vx = 0;
+        entity.x = tile.x - entity.width;
+        changeDirection();
+    } else if (entity.state.collidingRight) {
+        entity.vx = 0;
+        entity.x = tile.x + tile.width;
+        changeDirection();
+    }
 }

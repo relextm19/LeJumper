@@ -1,5 +1,5 @@
 import * as MapModule from "./map.js";
-import { checkEntityBounds, checkMapCollision } from "./collison.js";
+import { checkMapCollision } from "./collison.js";
 import { updateCameraX, updateCameraY } from "./camera.js";
 import { applyResistanceForces, updateEntityPosition } from "./physics.js";
 import { addEntity } from "./gameState.js";
@@ -59,7 +59,7 @@ export function updatePlayer(deltaTime) {
 
     player.state.onGround = false;
 
-    checkMapCollision(player); //FIXME: the player can't jump when he is running into a tile
+    checkMapCollision(player, onCollision); //FIXME: the player can't jump when he is running into a tile
 
     updateCameraY(player.y);
     updateCameraX(player.x);
@@ -79,6 +79,23 @@ export function playerMovement() {
     }
     if (keys.down) {
         player.vy += player.ay * 0.1;
+    }
+}
+
+export function onCollision(entity, tile) {
+    if (entity.state.collidingTop) {
+        entity.vy = 0;
+        entity.y = tile.y - entity.height;
+        entity.state.onGround = true;
+    } else if (entity.state.collidingBot) {
+        entity.vy = 0;
+        entity.y = tile.y + tile.height;
+    } else if (entity.state.collidingLeft) {
+        entity.vx = 0;
+        entity.x = tile.x - entity.width;
+    } else if (entity.state.collidingRight) {
+        entity.vx = 0;
+        entity.x = tile.x + tile.width;
     }
 }
 

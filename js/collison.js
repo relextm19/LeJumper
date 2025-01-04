@@ -1,25 +1,9 @@
+import { enities } from "./gameState.js";
 import { getMapDimension, getMapTiles } from "./map.js";
 let [limitX, limitY] = [0, 0]; 
 export function initCollision(){
     [limitX, limitY] = getMapDimension();
     console.log("Collision initalzied");
-}
-
-export function checkEntityBounds(entity) {
-    if (entity.y + entity.height > limitY) {
-        entity.state.onGround = true;
-        entity.state.collidingBot = true;
-    } 
-    if (entity.y < 0) {
-        entity.state.collidingTop = true;
-    }
-    if (entity.x < 0) {
-        entity,state.collidingLeft = true;
-    }
-    if (entity.x > limitX - entity.width) {
-        entity.state.collidingRight = true;
-    }
-    handleCollsionState(entity);
 }
 
 export function checkEntityTileCollision(entity, tile) {
@@ -43,35 +27,15 @@ export function checkEntityTileCollision(entity, tile) {
     }
 }
 
-export function checkMapCollision(entity) {
+export function checkMapCollision(entity, onCollision) {
     const mapTiles = getMapTiles();
-    let collisionDetected = false;
-    mapTiles.forEach((row) => {
-        row.forEach((tile) => {
-            if (!tile.solid) return;
-            clearCollisionState(entity);  
+    for (let row of mapTiles) {
+        for (let tile of row) {
+            if (!tile.solid) continue;
+            clearCollisionState(entity);
             checkEntityTileCollision(entity, tile);
-            handleCollsionState(entity, tile);
-            if (collisionDetected) return;
-        });
-        if (collisionDetected) return;
-    });
-}
-
-export function handleCollsionState(entity, tile) {
-    if (entity.state.collidingTop) {
-        entity.vy = 0;
-        entity.y = tile.y - entity.height;
-        entity.state.onGround = true;
-    } else if (entity.state.collidingBot) {
-        entity.vy = 0;
-        entity.y = tile.y + tile.height;
-    } else if (entity.state.collidingLeft) {
-        entity.vx = 0;
-        entity.x = tile.x - entity.width;
-    } else if (entity.state.collidingRight) {
-        entity.vx = 0;
-        entity.x = tile.x + tile.width;
+            onCollision(entity, tile);
+        }
     }
 }
 
