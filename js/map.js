@@ -21,9 +21,9 @@ function udpateMapCanvasDimension(width, height){
 
 export function splitMap(endX, endY){
     [rowCount, columnCount] = [endX, endY];
-    for (let y = 0; y <= rowCount; y += 1) {
+    for (let y = 0; y < rowCount; y += 1) {
         const row = [];
-        for (let x = 0; x <= columnCount; x += 1) {
+        for (let x = 0; x < columnCount; x += 1) {
             const tile = {
                 type: 0,
                 solid: false,

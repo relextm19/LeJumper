@@ -1,6 +1,7 @@
 import { checkMapCollision, checkScreenBounds } from "./collison.js";
 import { getTileDimension, getMapTiles } from "./map.js";
 import { updateEntityPosition, applyResistanceForces } from "./physics.js";
+import { enemies } from "./gameState.js";
 
 export const turtleEnemy = {
     x: 0,
@@ -20,42 +21,57 @@ export const turtleEnemy = {
         collidingLeft: false,
         collidingRight: false,
         direction: 1 //1 is to the right and -1 to the left
-    }
+    },
+    hp: 0
 };
 
 let tileWidth = 0;
 let tileHeight = 0;
 
-export function initTurtleEnemy() {
+export function initTurtleEnemy(x, y) {
     [tileWidth, tileHeight] = getTileDimension();
-    turtleEnemy.x = tileWidth * 8; 
-    turtleEnemy.y = 0;
-    turtleEnemy.width = tileHeight - 10;
-    turtleEnemy.height = tileHeight - 10; 
+    turtleEnemy.x = x; 
+    turtleEnemy.y = y;
+    turtleEnemy.width = tileHeight - 3;
+    turtleEnemy.height = tileHeight - 3; 
     turtleEnemy.vy = 0;
     turtleEnemy.vx = 0;  
     turtleEnemy.ax = tileWidth * 0.01;
     turtleEnemy.ay = tileHeight * 0.3;
     turtleEnemy.aax = tileWidth * 0.005;
+    turtleEnemy.hp = 1;
     turtleEnemy.image.src = "assets/img/russel.png";
     console.log("turtleEnemy initalzied");
+    enemies.push(turtleEnemy);
 }
 
-export function updateTurtleEnemy(deltaTime) {
+export function updateTurtleEnemy(entity, deltaTime) {
     const equalizer = deltaTime * 0.1;
-    turtleEnemy.vx = 1 * turtleEnemy.state.direction;
-    applyResistanceForces(turtleEnemy, equalizer);
-    updateEntityPosition(turtleEnemy, equalizer);
-    checkScreenBounds(turtleEnemy);
-    checkMapCollision(turtleEnemy, onCollision);
+    entity.vx = 1 * entity.state.direction;
+    applyResistanceForces(entity, equalizer);
+    updateEntityPosition(entity, equalizer);
+    checkScreenBounds(entity);
+    checkMapCollision(entity, onCollision);
 }
 
-function changeDirection() {
-    turtleEnemy.state.direction *= -1;
-    turtleEnemy.x += turtleEnemy.state.direction; // move away from the wall to avoid multiple detections 
+export function enemyTakeDamage(amount){
+    turtleEnemy.hp -= amount;
+    if(turtleEnemy.hp <= 0) {
+        turtleEnemy.hp = 0;
+        //remove enemy from the game
+        const index = enemies.indexOf(turtleEnemy);
+        if (index > -1) {
+            enemies.splice(index, 1);
+        }
+    }
 }
 
-function onCollision(entity, tile){ //TODO: change direction when about to fall of a tile
+function changeDirection(entity) {
+    entity.state.direction *= -1;
+    entity.x += entity.state.direction; // move away from the wall to avoid multiple detections 
+}
+
+function onCollision(entity, tile){
     //handle basic collision
     if (entity.state.collidingTop) {
         entity.vy = 0;
@@ -69,13 +85,13 @@ function onCollision(entity, tile){ //TODO: change direction when about to fall 
     else if (entity.state.collidingLeft) {
         entity.vx = 0;
         entity.x = tile.x - entity.width;
-        changeDirection();
+        changeDirection(entity);
     } else if (entity.state.collidingRight) {
         entity.vx = 0;
         entity.x = tile.x + tile.width;
-        changeDirection();
+        changeDirection(entity);
     }
-    if(isAboutToFall(entity)) changeDirection();
+    if(isAboutToFall(entity)) changeDirection(entity);
 }
 
 function isAboutToFall(entity){
@@ -85,8 +101,7 @@ function isAboutToFall(entity){
     const belowTileY = Math.floor((entity.y + entity.height) / tileHeight);
     const mapTiles = getMapTiles(); 
 
-    if(nextTileX < 0 || nextTileX >= mapTiles[0].length) return true;
-    if (belowTileY < 0 || belowTileY >= mapTiles.length) return true;
+    if (belowTileY < 0 || belowTileY >= mapTiles.length || nextTileX < 0 || nextTileX >= mapTiles[0].length) return false; // i dont care if the enemy is out of bounds but the check is necesary to avoid accesing undefined tiles
     if(!mapTiles[belowTileY][nextTileX].solid) return true;
     
     return false;

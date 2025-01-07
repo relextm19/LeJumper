@@ -1,8 +1,9 @@
 import * as MapModule from "./map.js";
-import { checkMapCollision, checkScreenBounds } from "./collison.js";
+import { checkMapCollision, checkScreenBounds, playerEnemyCollision} from "./collison.js";
 import { updateCameraX, updateCameraY } from "./camera.js";
 import { applyResistanceForces, updateEntityPosition } from "./physics.js";
-import { addEntity } from "./gameState.js";
+import { enemies } from "./gameState.js";
+import { endGame } from "./main.js";
 let tileWidth, tileHeight;
 
 export const player = {
@@ -22,7 +23,8 @@ export const player = {
         collidingBot: false,
         collidingLeft: false,
         collidingRight: false
-    }
+    },
+    hp: 0
 };
 
 const keys = {
@@ -43,9 +45,9 @@ export function initPlayer() {
     player.ax = tileWidth * 0.01;
     player.ay = tileHeight * 0.3;
     player.aax = tileWidth * 0.005;
+    player.hp = 3;
     player.image.src = "assets/img/lebombom1.png";
     console.log("Player initialized");
-    addEntity(player);
 }
 
 export function updatePlayer(deltaTime) {
@@ -61,6 +63,9 @@ export function updatePlayer(deltaTime) {
 
     checkScreenBounds(player);
     checkMapCollision(player, onCollision); //FIXME: the player can't jump when he is running into a tile
+    for(let enemy of enemies){
+        playerEnemyCollision(player, enemy);
+    }
 
     updateCameraY(player.y);
     updateCameraX(player.x);
@@ -99,6 +104,14 @@ export function onCollision(entity, tile) {
         entity.x = tile.x + tile.width;
     }
 }
+
+export function playerTakeDamage(amount) {
+    player.hp -= amount;
+    if(player.hp <= 0) {
+        endGame();        
+    }
+}
+
 
 function keysDown(e) {
     switch (e.key) {
