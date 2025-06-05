@@ -38,8 +38,8 @@ export function initPlayer() {
     [tileWidth, tileHeight] = MapModule.getTileDimension();
     player.x = tileWidth; 
     player.y = 0;
-    player.width = tileHeight - 10;
-    player.height = tileHeight - 10; //if the player size gets higher than the tile the collision breaks
+    player.width = tileHeight - 3;
+    player.height = tileHeight - 3; //if the player size gets higher than the tile the collision breaks
     player.vy = 0;
     player.vx = 0;  
     player.ax = tileWidth * 0.01;

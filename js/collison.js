@@ -49,19 +49,6 @@ export function checkEntityTileCollision(entity, tile) {
 
 //i know i could try to modify player tile so it would be more universal but i lowkey dont care
 export function playerEnemyCollision(player, enemy) {
-     // Horizontal collision
-     if (player.y + player.height > enemy.y && player.y < enemy.y + enemy.height) {
-        if (player.x + player.width > enemy.x && player.x < enemy.x) {
-            playerTakeDamage(1);
-            player.x = enemy.x - player.width;
-            player.vx *= -1;
-        } else if (player.x < enemy.x + enemy.width && player.x + player.width > enemy.x + enemy.width) {
-            playerTakeDamage(1);
-            player.vx *= -1;
-            player.x = enemy.x + enemy.width;
-        }
-    }
-
     // Vertical collision
     if (player.x + player.width > enemy.x && player.x < enemy.x + enemy.width) {
         if (player.y + player.height > enemy.y && player.y < enemy.y && player.vy > 0) {
@@ -73,6 +60,18 @@ export function playerEnemyCollision(player, enemy) {
             player.y = enemy.y + enemy.height;
         }
     }
+    // Horizontal collision
+    if (player.y + player.height > enemy.y && player.y < enemy.y + enemy.height) {
+        if (player.x + player.width > enemy.x && player.x < enemy.x) {
+            playerTakeDamage(1);
+            player.x = enemy.x - player.width;
+            player.vx *= -1;
+        } else if (player.x < enemy.x + enemy.width && player.x + player.width > enemy.x + enemy.width) {
+            playerTakeDamage(1);
+            player.vx *= -1;
+            player.x = enemy.x + enemy.width;
+        }
+    }   
 }
 
 export function checkMapCollision(entity, onCollision) {

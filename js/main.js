@@ -24,7 +24,7 @@ async function initalizeAll(){
     initCamera();
     
     initPlayer(gameLoop);
-    initTurtleEnemy(100, 100);
+    initTurtleEnemy(250, 100);
 
     gameLoopInterval = setInterval(gameLoop, 1000 / 60);
 }
