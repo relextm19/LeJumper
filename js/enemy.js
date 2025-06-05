@@ -95,14 +95,21 @@ function onCollision(entity, tile){
 }
 
 function isAboutToFall(entity){
-    if(!entity.state.onGround) return false;
-    
-    const nextTileX = entity.vx > 0 ? Math.floor((entity.x + entity.width) / tileWidth) : Math.floor(entity.x / tileWidth); // mmm
-    const belowTileY = Math.floor((entity.y + entity.height) / tileHeight);
-    const mapTiles = getMapTiles(); 
+    if (!entity.state.onGround) return false;
 
-    if (belowTileY < 0 || belowTileY >= mapTiles.length || nextTileX < 0 || nextTileX >= mapTiles[0].length) return false; // i dont care if the enemy is out of bounds but the check is necesary to avoid accesing undefined tiles
-    if(!mapTiles[belowTileY][nextTileX].solid) return true;
-    
-    return false;
+    const frontX = entity.state.direction > 0 
+        ? entity.x + entity.width + 1 
+        : entity.x - 1;
+
+    const nextTileX = Math.floor(frontX / tileWidth);
+    const belowTileY = Math.floor((entity.y + entity.height + 1) / tileHeight);
+
+    const mapTiles = getMapTiles();
+
+    if (
+        belowTileY < 0 || belowTileY >= mapTiles.length ||
+        nextTileX < 0 || nextTileX >= mapTiles[0].length
+    ) return false;
+
+    return !mapTiles[belowTileY][nextTileX].solid;
 }
